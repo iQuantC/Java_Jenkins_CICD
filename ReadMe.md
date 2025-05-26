@@ -200,3 +200,37 @@ exit
 3. Set up JDK installation in Manage Jenkins > Tools > JDK installations - Uncheck "Install Automatically"
     1. Name:        java17015
     2. JAVA_HOME:   /opt/java/openjdk
+4. Add these tools in the Jenkinsfile for 'jdk' and 'maven'.
+
+
+## Set up SonarQube Analysis with a Container
+
+Run the command below to create the SonarQube Container (Give it a few minutes to get ready):
+```sh
+docker run -d --name sonarqube-dind \
+-e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+-p 9000:9000 \
+--network jenkins-java \
+sonarqube:latest
+```
+
+Check the logs of the SonarQube Container:
+```sh
+docker logs -f sonarqube-dind
+```
+
+### Check the Docker Processes Running
+```sh
+docker ps
+```
+Get SonarQube Container IP Address
+```sh
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' sonarqube-dind
+```
+On your browser, open
+```sh
+ContainerIP:9000
+```
+
+
+
