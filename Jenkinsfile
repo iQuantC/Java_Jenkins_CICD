@@ -3,7 +3,7 @@ pipeline {
     tools {
         jdk 'java17015'
         maven 'maven387'
-        sonar 'sonar7'
+        //sonar 'sonar7'
     }
     stages {
         stage('Initialize Pipeline'){
@@ -27,7 +27,17 @@ pipeline {
         }
         stage('SonarQube Analysis'){
             steps {
-                echo 'Static Code Analysis with SonarQube'
+                withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
+                    withSonarQubeEnv('sonar7') {
+                        sh """
+                        sonar-scanner \
+                        -Dsonar.projectKey=jm \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://172.18.0.3:9000 \
+                        -Dsonar.token=jmsonar
+                        """
+                    }
+                }
             }
         }
         stage('Quality Gate'){
