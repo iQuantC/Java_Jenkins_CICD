@@ -21,6 +21,7 @@ pipeline {
         stage('Maven Build & Test'){
             steps {
                 echo 'Building Java App with Maven'
+                sh 'mvn clean package && mvn test'
             }
         }
         stage('Maven Package'){
