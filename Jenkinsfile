@@ -52,16 +52,5 @@ pipeline {
                 echo 'Pushing the Java App Docker Image to DockerHub'
             }
         }
-        post {
-            always {
-                cleanWs()
-            }
-            success {
-                echo 'Pipeline Completed Successfully!'
-            }
-            failure {
-                echo 'Pipeline Failed!'
-            }
-        }
     }
 }
