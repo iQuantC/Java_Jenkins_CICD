@@ -262,3 +262,26 @@ Create a Local Project in SonarQube and provide the ff:
 7. Go to Jenkins > Manage Jenkins > Tools > Add Name: sonar7, Install Automatically. Save and Apply
 
 
+***Login to Jenkins Container & Establish Communication to the SonarQube Container***
+```sh
+docker exec -it jenkins-dind bash
+```
+Update & Install Ping in Jenkins Container once you've logged in:
+```sh
+apt-get update -y
+apt-get install iputils-ping -y
+exit
+```
+
+Use Jenkins Container bash to Ping SonarQube Container:
+```sh
+docker exec -it jenkins-dind ping sonarqube-dind
+```
+You will see bytes of data coming in showing established connection between the 2 containers.
+
+
+
+
+
+
+
