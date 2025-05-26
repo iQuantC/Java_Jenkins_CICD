@@ -3,6 +3,7 @@ pipeline {
     tools {
         jdk 'java17015'
         maven 'maven387'
+        sonar 'sonar7'
     }
     stages {
         stage('Initialize Pipeline'){
