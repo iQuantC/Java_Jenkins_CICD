@@ -28,12 +28,12 @@ pipeline {
         stage('SonarQube Analysis'){
             steps {
                 withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
-                    withSonarQubeEnv('sonar7') {
+                    withSonarQubeEnv('sonar') {
                         sh """
                         sonar-scanner \
                         -Dsonar.projectKey=jm \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube-dind:9000 \
+                        -Dsonar.host.url=http://172.18.0.3:9000 \
                         -Dsonar.token=jmsonar
                         """
                     }
