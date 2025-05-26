@@ -203,9 +203,10 @@ exit
 4. Add these tools in the Jenkinsfile for 'jdk' and 'maven'.
 
 
+
 ## Set up SonarQube Analysis with a Container
 
-Run the command below to create the SonarQube Container (Give it a few minutes to get ready):
+Run the command below to create the SonarQube Container on the same Docker network as Jenkins:
 ```sh
 docker run -d --name sonarqube-dind \
 -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
@@ -214,7 +215,7 @@ docker run -d --name sonarqube-dind \
 sonarqube:latest
 ```
 
-Check the logs of the SonarQube Container:
+Check the logs of the SonarQube Container (Wait till SonarQube is Operational):
 ```sh
 docker logs -f sonarqube-dind
 ```
@@ -232,5 +233,32 @@ On your browser, open
 ContainerIP:9000
 ```
 
+Login to SonarQube GUI with 
+```sh
+Username: admin
+Password: admin
+```
+and Change the password.
+
+
+### Create Project in SonarQube
+
+Create a Local Project in SonarQube and provide the ff:
+1. Project display name, 
+2. Project key, 
+3. GitHub branch (main), 
+4. Use the global setting, and 
+5. Create project. 
+
+
+### Create a SonarQube Token and Add it to Jenkins Credentials:
+
+1. Click on the User Account, and click on "My Account"
+2. Go to Security, create a token of type "Global Analysis Token", expiry date, and Generate.
+3. Copy and Save the token somewhere safe.
+4. Go to Jenkins Credentials, select Kind "Secret text", Paste sonar token as the secret and provide ID and description.
+5. Install the "SonarQube Scanner" and "Sonar Quality Gates" Plugins.
+6. Go to Jenkins > Manage Jenkins > Systems > SonarQube Installation, Name: sonar, SonarQube URL (http://ContainerIP:9000), and Server auth token: select the credential. Apply and Save.
+7. Go to Jenkins > Manage Jenkins > Tools > Add Name: sonar7, Install Automatically. Save and Apply
 
 
