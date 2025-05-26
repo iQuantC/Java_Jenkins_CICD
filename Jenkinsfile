@@ -24,11 +24,6 @@ pipeline {
                 sh 'mvn clean package && mvn test'
             }
         }
-        stage('Maven Package'){
-            steps {
-                echo 'Packaging artifact with Maven'
-            }
-        }
         stage('SonarQube Analysis'){
             steps {
                 echo 'Static Code Analysis with SonarQube'
