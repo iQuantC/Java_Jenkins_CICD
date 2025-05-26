@@ -37,7 +37,7 @@ pipeline {
                             -Dsonar.projectKey=jm \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://172.18.0.3:9000 \
-                            -Dsonar.token=$jmsonar
+                            -Dsonar.token=$sonarToken
                         """
                     }
                 }
