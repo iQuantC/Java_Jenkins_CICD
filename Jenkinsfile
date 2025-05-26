@@ -33,11 +33,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
                     withSonarQubeEnv('sonar') {
                         sh """
-                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=jm \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube-dind:9000 \
-                        -Dsonar.token=jmsonar
+                            ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=jm \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://172.18.0.3:9000 \
+                            -Dsonar.token=$jmsonar
                         """
                     }
                 }
