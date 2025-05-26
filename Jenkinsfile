@@ -15,6 +15,7 @@ pipeline {
         stage('Checkout GitHub Codes'){
             steps {
                 echo 'Checking out GitHub Codes'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jm', url: 'https://github.com/iQuantC/Java_Jenkins_CICD.git']])
             }
         }
         stage('Maven Build & Test'){
