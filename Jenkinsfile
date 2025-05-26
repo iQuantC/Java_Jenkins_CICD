@@ -5,6 +5,9 @@ pipeline {
         maven 'maven387'
         //sonar 'sonar7'
     }
+    environment {
+        SONAR_SCANNER_HOME = tool 'sonar7'
+    }
     stages {
         stage('Initialize Pipeline'){
             steps {
