@@ -118,11 +118,17 @@ jenkins/jenkins:lts
 ```sh
 docker ps
 ```
-
+Get Jenkins Container IP Address
+```sh
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' jenkins-dind
+```
 On your browser, open
 ```sh
-localhost:8080
+ContainerIP:8080
 ```
+
+Note: If you see the error "It appears that your reverse proxy set up is broken.", go to Manage Jenkins > System and change the Jenkins URL from localhost:8080 to ContainerIP:8080.
+
 
 ### Log into the Jenkins Container
 ```sh
@@ -156,4 +162,41 @@ docker logs -f jenkins-dind
 ```
 Ctrl + C to exit logs
 
-4a9cb03b08594cff8fca741001153a5e
+### Integrate Jenkins & GitHub Repository
+In your GitHub Account, 
+1. Create a PAT  with scope (repo & admin:repo_hook), and 
+2. Add it as a Credential (Kind: Username with Psswd) on Jenkins UI
+    1. Username:    iQuantC
+    2. Password:    PAT here
+3. Create Pipeline Job with Definition: "Pipeline script from SCM", and complete the fields SCM, Repository URL, Credentials, Branch Specifier, and Script Path. 
+4. Apply and Save when done.
+
+
+### Install Java & Maven in the Jenkins Container
+```sh
+docker exec -it jenkins-dind bash
+```
+
+Check Java version (Usually installed with Jenkins since Java is one of Jenkins' Dependencies) & JAVA_HOME
+```sh
+java -version
+```
+```sh
+mvn -version
+```
+
+Install Maven & get MAVEN_HOME as well (usually: /usr/share/maven)
+```sh
+apt update -y
+apt install maven -y
+mvn -version
+exit
+```
+***In the Jenkins GUI***
+1. Install Maven Integration Plugin 
+2. Set up Maven installation in Manage Jenkins > Tools > Maven installations - Uncheck "Install Automatically"
+    1. Name:        maven387
+    2. MAVEN_HOME:  /usr/share/maven
+3. Set up JDK installation in Manage Jenkins > Tools > JDK installations - Uncheck "Install Automatically"
+    1. Name:        java17015
+    2. JAVA_HOME:   /opt/java/openjdk
