@@ -47,6 +47,10 @@ pipeline {
         stage('Quality Gate'){
             steps {
                 echo 'Check Quality Gate'
+                // Wait for SonarQube analysis to finish and get Quality Gate result
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
         stage('Build & Tag Docker Image'){
