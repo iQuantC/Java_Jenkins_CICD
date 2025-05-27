@@ -97,20 +97,22 @@ pipeline {
 	stage('Authenticate with GCP & Push to GCR') {
             steps {
 		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
-		    	sh '''
-				echo "Activating GCP service account..."
-    				gcloud auth activate-service-account --key-file=$gcpCred
-				gcloud config set project focal-dock-440200-u5
-
-    				echo "Configuring Docker to use gcloud credentials..."
-				gcloud auth configure-docker --quiet
-
-				def imageNameGCR = "gcr.io/${focal-dock-440200-u5}/java-app"
-				docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}
-   
-    				echo "Pushing Docker image to GCR..."
-				docker push ${imageNameGCR}
-      			  '''
+			withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+		    		sh '''
+                    			echo Activating GCP service account...
+                    			gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    			gcloud config set project focal-dock-440200-u5
+                    			echo Configuring Docker to use gcloud credentials...
+                    			gcloud auth configure-docker --quiet
+                		   '''
+					}
+	    			}
+		    		script {
+					def imageNameGCR = "gcr.io/${focal-dock-440200-u5}/java-app"
+					sh '''
+						docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}
+						docker push ${imageNameGCR}
+      					   '''
 				}
             		}
         	}
