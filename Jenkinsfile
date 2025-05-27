@@ -3,7 +3,6 @@ pipeline {
     tools {
         jdk 'java17015'
         maven 'maven387'
-        //sonar 'sonar7'
     }
     environment {
         SONAR_SCANNER_HOME = tool 'sonar7'
@@ -95,5 +94,25 @@ pipeline {
             		}
         	  }
     	      }
+	stage('Authenticate with GCP & Push to GCR') {
+            steps {
+		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+		    	sh '''
+				echo "Activating GCP service account..."
+    				gcloud auth activate-service-account --key-file=$gcpCred
+				gcloud config set project focal-dock-440200-u5
+
+    				echo "Configuring Docker to use gcloud credentials..."
+				gcloud auth configure-docker --quiet
+
+				def imageNameGCR = "gcr.io/${focal-dock-440200-u5}/java-app"
+				docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}
+   
+    				echo "Pushing Docker image to GCR..."
+				docker push ${imageNameGCR}
+      			  '''
+				}
+            		}
+        	}
 	}
 }
