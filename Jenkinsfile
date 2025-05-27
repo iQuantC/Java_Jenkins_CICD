@@ -60,13 +60,14 @@ pipeline {
             steps {
                 echo 'Building the Java App Docker Image'
                 script {
-					docker.build("java-app:${BUILD_NUMBER}")
-				}
+			docker.build("java-app:${BUILD_NUMBER}")
+		}
             }
         }
         stage('Trivy Security Scan'){
             steps {
                 echo 'Scanning Docker Image with Trivy'
+		sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivyFSScanReport.html image java-app:${BUILD_NUMBER}'
             }
         }
         stage('Push Docker Image'){
