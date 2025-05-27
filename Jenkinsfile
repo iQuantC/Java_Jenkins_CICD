@@ -108,7 +108,7 @@ pipeline {
 					}
 	    			}
 		    		script {
-					def imageNameGCR = "gcr.io/${focal-dock-440200-u5}/java-app"
+					def imageNameGCR = "gcr.io/focal-dock-440200-u5/java-app"
 					sh '''
 						docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}
 						docker push ${imageNameGCR}
