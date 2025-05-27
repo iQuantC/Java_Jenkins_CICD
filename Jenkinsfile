@@ -52,8 +52,7 @@ pipeline {
         }
         stage("Quality Gate") {
             steps {
-                // Wait for SonarQube analysis to finish and get Quality Gate result
-                timeout(time: 5, unit: 'MINUTES') {
+                script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'sonarToken'
                 }
             }
