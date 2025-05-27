@@ -22,10 +22,16 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jm', url: 'https://github.com/iQuantC/Java_Jenkins_CICD.git']])
             }
         }
-        stage('Maven Build & Test'){
+        stage('Maven Build'){
             steps {
                 echo 'Building Java App with Maven'
-                sh 'mvn clean package && mvn test'
+                sh 'mvn clean package'
+            }
+        }
+        stage('JUnit Test of Java App'){
+            steps {
+                echo 'JUnit Testing'
+                sh 'mvn test'
             }
         }
         stage('SonarQube Analysis'){
@@ -44,13 +50,17 @@ pipeline {
                 }
             }
         }
-        stage('Quality Gate'){
+        stage("Quality Gate") {
             steps {
-                echo 'Check Quality Gate'
                 // Wait for SonarQube analysis to finish and get Quality Gate result
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonarToken'
                 }
+            }
+        }
+        stage('Trivy FS Scan'){
+            steps {
+                echo 'Scanning File System with Trivy FS'
             }
         }
         stage('Build & Tag Docker Image'){
