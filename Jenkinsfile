@@ -90,6 +90,7 @@ pipeline {
 		script {
 			def imageName = "iquantc/java-app:${BUILD_NUMBER}"
 			sh "docker tag java-app:${BUILD_NUMBER} ${imageName}"
+			sh "docker push ${imageName}"
 			//docker.image("iquantc/${imageName}").tag()
 			//docker.image("iquantc/${imageName}").push()
 			//docker.image("java-app:${BUILD_NUMBER}").push()
