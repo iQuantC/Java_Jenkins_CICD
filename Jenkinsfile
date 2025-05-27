@@ -74,7 +74,14 @@ pipeline {
             steps {
                 echo 'Login in to DockerHub'
 		withCredentials([usernameColonPassword(credentialsId: 'jmDHub', variable: 'dockerHubCredential')]) {
-    			sh "docker login -u iquantc"
+    			script {
+                		def parts = dockerHubCredential.split(":")
+                		def username = parts[0]
+                		def password = parts[1]
+                		sh """
+                  			echo '${password}' | docker login -u '${username}' --password-stdin
+                		"""
+            		}
 		}
             }
         }
