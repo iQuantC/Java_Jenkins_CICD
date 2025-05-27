@@ -70,9 +70,20 @@ pipeline {
 		sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivyFSScanReport.html image java-app:${BUILD_NUMBER}'
             }
         }
+	stage('Login to DockerHub'){
+            steps {
+                echo 'Login in to DockerHub'
+		withCredentials([usernameColonPassword(credentialsId: 'jmDHub', variable: 'dockerHubCredential')]) {
+    			sh "docker login -u iquantc"
+		}
+            }
+        }
         stage('Push Docker Image'){
             steps {
                 echo 'Pushing the Java App Docker Image to DockerHub'
+		//script {
+			//docker.image("java-app:${BUILD_NUMBER}").push()
+		//}
             }
         }
     }
