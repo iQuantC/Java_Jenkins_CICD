@@ -105,14 +105,12 @@ pipeline {
                     			echo Configuring Docker to use gcloud credentials...
                     			gcloud auth configure-docker --quiet
                 		   '''
-					}
-	    			}
 		    		script {
 					def imageNameGCR = "gcr.io/focal-dock-440200-u5/java-app:${BUILD_NUMBER}"
-					sh '''
-						docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}
-						docker push ${imageNameGCR}
-      					   '''
+					sh "docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}"
+					sh "docker push ${imageNameGCR}"
+						}
+					}
 				}
             		}
         	}
