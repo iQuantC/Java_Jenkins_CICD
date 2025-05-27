@@ -73,16 +73,15 @@ pipeline {
 	stage('Login to DockerHub'){
             steps {
                 echo 'Login in to DockerHub'
-		withCredentials([usernameColonPassword(credentialsId: 'jmDHub', variable: 'dockerHubCredential')]) {
-    			script {
-                		def parts = dockerHubCredential.split(":")
-                		def username = parts[0]
-                		def password = parts[1]
-                		sh """
-                  			echo '${password}' | docker login -u '${username}' --password-stdin
-                		"""
-            		}
-		}
+		withCredentials([usernamePassword(
+            		credentialsId: 'jmDHub',
+            		usernameVariable: 'DOCKER_USER',
+            		passwordVariable: 'DOCKER_PASS'
+        	)]) {
+            		sh '''
+                		echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            		'''
+        	}
             }
         }
         stage('Push Docker Image'){
