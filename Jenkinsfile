@@ -88,9 +88,9 @@ pipeline {
             steps {
                 echo 'Pushing the Java App Docker Image to DockerHub'
 		script {
-			def imageName = "iquantc/java-app:${BUILD_NUMBER}"
-			docker.image("${imageName}").tag()
-			docker.image("${imageName}").push()
+			def imageName = "java-app:${BUILD_NUMBER}"
+			docker.image("iquantc/${imageName}").tag()
+			docker.image("iquantc/${imageName}").push()
 			//docker.image("java-app:${BUILD_NUMBER}").push()
 		}
             }
