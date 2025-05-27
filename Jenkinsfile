@@ -84,17 +84,14 @@ pipeline {
         	}
             }
         }
-        stage('Push Docker Image'){
+        stage('Tag & Push Docker Image'){
             steps {
                 echo 'Pushing the Java App Docker Image to DockerHub'
 		script {
 			def imageName = "iquantc/java-app:${BUILD_NUMBER}"
 			sh "docker tag java-app:${BUILD_NUMBER} ${imageName}"
 			sh "docker push ${imageName}"
-			//docker.image("iquantc/${imageName}").tag()
-			//docker.image("iquantc/${imageName}").push()
-			//docker.image("java-app:${BUILD_NUMBER}").push()
-		}
+			sh "docker logout"
             }
         }
     }
