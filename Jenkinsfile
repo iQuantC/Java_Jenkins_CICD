@@ -92,7 +92,8 @@ pipeline {
 			sh "docker tag java-app:${BUILD_NUMBER} ${imageName}"
 			sh "docker push ${imageName}"
 			sh "docker logout"
-            }
-        }
-    }
+            		}
+        	  }
+    	      }
+	}
 }
