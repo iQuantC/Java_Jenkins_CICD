@@ -127,12 +127,4 @@ pipeline {
             		}
         	}
 	}
-	post {
-        	success {
-            		echo "Pipeline completed successfully! Image pushed to ${FULL_IMAGE_NAME}"
-        	}
-        	failure {
-            		echo "Pipeline failed. Please check the logs for more details."
-        	}
-    	}
 }
