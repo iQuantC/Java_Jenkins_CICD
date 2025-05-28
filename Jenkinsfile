@@ -108,7 +108,7 @@ pipeline {
                     			gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                     			gcloud config set project focal-dock-440200-u5
                     			echo Configuring Docker to use gcloud credentials...
-                    			gcloud auth configure-docker --quiet
+                    			gcloud auth configure-docker us-docker.pkg.dev --quiet
                 		'''
 		    		script {
 					sh '''
