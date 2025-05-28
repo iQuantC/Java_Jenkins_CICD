@@ -76,20 +76,20 @@ pipeline {
 		//sh "trivy --severity HIGH,CRITICAL --no-progress --format table -o trivyFSScanReport.html image ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
-	stage('Login to DockerHub'){
-            steps {
-                echo 'Login in to DockerHub'
-		withCredentials([usernamePassword(
-            		credentialsId: 'jmDHub',
-            		usernameVariable: 'DOCKER_USER',
-            		passwordVariable: 'DOCKER_PASS'
-        	)]) {
-            		sh '''
-                		echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            		'''
-        	}
-            }
-        }
+	// stage('Login to DockerHub'){
+ //            steps {
+ //                echo 'Login in to DockerHub'
+	// 	withCredentials([usernamePassword(
+ //            		credentialsId: 'jmDHub',
+ //            		usernameVariable: 'DOCKER_USER',
+ //            		passwordVariable: 'DOCKER_PASS'
+ //        	)]) {
+ //            		sh '''
+ //                		echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+ //            		'''
+ //        	}
+ //            }
+ //        }
         //stage('Tag & Push Docker Image'){
         //    steps {
         //        echo 'Pushing the Java App Docker Image to DockerHub'
@@ -101,76 +101,77 @@ pipeline {
         //   		}
         //	  }
     	//      }
-	stage('Authenticate with GCP & Push to Artifact Registry') {
-            steps {
-		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
-			withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
-		    		sh '''
-                    			echo Activating GCP service account...
-                    			gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                    			gcloud config set project focal-dock-440200-u5
-                    			echo Configuring Docker to use gcloud credentials...
-                    			gcloud auth configure-docker us-docker.pkg.dev --quiet
-                		'''
-		    		script {
-			//		sh '''
-			//		if ! gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5 >/dev/null 2>&1; then 
-			//			echo "Creating Artifact Registry repository..."
-    			//			gcloud artifacts repositories create java-app-repo \
-      			//				--repository-format=docker \
-      			//				--location=us \
-      			//				--description="Docker repository" \
-      			//				--project=focal-dock-440200-u5
-  			//		else
-    			//			echo "Artifact Registry repository already exists. Skipping..."
-  			//		fi
-     			//		'''
-					sh '''
-						gcloud artifacts repositories create java-app-repo-02 --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
-      					'''
-					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
-					sh "docker push ${FULL_IMAGE_NAME}"
-					echo "Image pushed to: ${FULL_IMAGE_NAME}"
-						}
-					}
-				}
-            		}
-        	}
-	    stage('Deploy to Cloud Run') {
-		    steps {
-			withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
-			   withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
-		    		sh '''
-                    			echo "Deploying $FULL_IMAGE_NAME to Cloud Run..."
-          				gcloud run deploy $SERVICE_NAME \
-            					--image=$FULL_IMAGE_NAME \
-            					--region=$REGION \
-            					--platform=managed \
-            					--allow-unauthenticated \
-		 				--port=8090 \
-            					--memory=512Mi \
-            					--quiet
-                		'''
-			   	}
-			   }
-		    }
-	      }
-	    stage('Get Cloud Run Service URL') {
-            	steps {
-			withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
-			   	withEnv(["GOOGLE_APPLICATION_CREDENTIALS=\${gcpCred}"]) {
-                			sh '''
-		   				echo "Getting Cloud Run service URL..."
-                    				SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
-                        				--platform managed \
-                        				--region $REGION \
-                        				--format="value(status.url)")
-			    			echo "Service deployed successfully!"
-                        			echo "Service URL: $SERVICE_URL"
-                			'''
-					}
-				}
-            		}
-        	}
+	// stage('Authenticate with GCP & Push to Artifact Registry') {
+ //            steps {
+	// 	withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+	// 		withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+	// 	    		sh '''
+ //                    			echo Activating GCP service account...
+ //                    			gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+ //                    			gcloud config set project focal-dock-440200-u5
+ //                    			echo Configuring Docker to use gcloud credentials...
+ //                    			gcloud auth configure-docker us-docker.pkg.dev --quiet
+ //                		'''
+	// 	    		script {
+	// 				sh '''
+	// 					gcloud artifacts repositories create java-app-repo-02 --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
+ //      					'''
+	// 				sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
+	// 				sh "docker push ${FULL_IMAGE_NAME}"
+	// 				echo "Image pushed to: ${FULL_IMAGE_NAME}"
+	// 					}
+	// 				}
+	// 			}
+ //            		}
+ //        	}
+	//     stage('Deploy to Cloud Run') {
+	// 	    steps {
+	// 		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+	// 		   withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+	// 	    		sh '''
+ //                    			echo "Deploying $FULL_IMAGE_NAME to Cloud Run..."
+ //          				gcloud run deploy $SERVICE_NAME \
+ //            					--image=$FULL_IMAGE_NAME \
+ //            					--region=$REGION \
+ //            					--platform=managed \
+ //            					--allow-unauthenticated \
+	// 	 				--port=8090 \
+ //            					--memory=512Mi \
+ //            					--quiet
+ //                		'''
+	// 		   	}
+	// 		   }
+	// 	    }
+	//       }
+	//     stage('Get Cloud Run Service URL') {
+ //            	steps {
+	// 		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+	// 		   	withEnv(["GOOGLE_APPLICATION_CREDENTIALS=\${gcpCred}"]) {
+ //                			sh '''
+	// 	   				echo "Getting Cloud Run service URL..."
+ //                    				SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
+ //                        				--platform managed \
+ //                        				--region $REGION \
+ //                        				--format="value(status.url)")
+	// 		    			echo "Service deployed successfully!"
+ //                        			echo "Service URL: $SERVICE_URL"
+ //                			'''
+	// 				}
+	// 			}
+ //            		}
+ //        	}
+	    stage('Azure Login') {
+      		steps {
+        		withCredentials([file(credentialsId: 'azServicePrincipal', variable: 'AZURE_CRED')]) {
+          			sh '''
+            				echo "Logging into Azure CLI..."
+            				az login --service-principal --username $(jq -r .clientId $AZURE_CRED) \
+              					--password $(jq -r .clientSecret $AZURE_CRED) \
+              					--tenant $(jq -r .tenantId $AZURE_CRED) > /dev/null
+            				az account set --subscription $(jq -r .subscriptionId $AZURE_CRED)
+          			'''
+        			}
+      			}
+    		}
 	}
 }
