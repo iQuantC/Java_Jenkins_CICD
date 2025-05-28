@@ -9,7 +9,7 @@ pipeline {
 	PROJECT_ID = "focal-dock-440200-u5"
         IMAGE_NAME = "java-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        FULL_IMAGE_NAME = "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
+        FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
 	SERVICE_NAME = "java-app-service"
 	REGION = "us-central1"
     }
@@ -58,7 +58,7 @@ pipeline {
         stage('Trivy FS Scan'){
             steps {
                 echo 'Scanning File System with Trivy FS'
-                sh "trivy fs --format table -o FSScanReport.html"
+                sh "trivy fs --format table -o FSScanReport.html ."
             }
         }
         stage('Build & Tag Docker Image'){
@@ -101,7 +101,7 @@ pipeline {
         //   		}
         //	  }
     	//      }
-	stage('Authenticate with GCP & Push to GCR') {
+	stage('Authenticate with GCP & Push to Artifact Registry') {
             steps {
 		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
 			withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
@@ -125,9 +125,9 @@ pipeline {
     			//			echo "Artifact Registry repository already exists. Skipping..."
   			//		fi
      			//		'''
-					def FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo/${IMAGE_NAME}:${IMAGE_TAG}"
 					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
 					sh "docker push ${FULL_IMAGE_NAME}"
+					echo "Image pushed to: ${FULL_IMAGE_NAME}"
 						}
 					}
 				}
@@ -138,7 +138,7 @@ pipeline {
 			withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
 			   withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
 		    		sh '''
-                    			echo "Deploying to Cloud Run..."
+                    			echo "Deploying $FULL_IMAGE_NAME to Cloud Run..."
           				gcloud run deploy $SERVICE_NAME \
             					--image=$FULL_IMAGE_NAME \
             					--region=$REGION \
@@ -153,12 +153,19 @@ pipeline {
 	      }
 	    stage('Get Cloud Run Service URL') {
             	steps {
-                	sh '''
-                    		gcloud run services describe $SERVICE_NAME \
-                        		--platform managed \
-                        		--region $REGION \
-                        		--format="value(status.url)"
-                	'''
+			withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+			   	withEnv(["GOOGLE_APPLICATION_CREDENTIALS=\${gcpCred}"]) {
+                			sh '''
+		   				echo "Getting Cloud Run service URL..."
+                    				SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
+                        				--platform managed \
+                        				--region $REGION \
+                        				--format="value(status.url)")
+			    			echo "Service deployed successfully!"
+                        			echo "Service URL: $SERVICE_URL"
+                			'''
+					}
+				}
             		}
         	}
 	}
