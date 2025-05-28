@@ -126,7 +126,7 @@ pipeline {
   			//		fi
      			//		'''
 					sh '''
-						gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
+						gcloud artifacts repositories create java-app-repo-00 --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
       					'''
 					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
 					sh "docker push ${FULL_IMAGE_NAME}"
