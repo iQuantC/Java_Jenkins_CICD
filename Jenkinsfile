@@ -125,7 +125,9 @@ pipeline {
     			//			echo "Artifact Registry repository already exists. Skipping..."
   			//		fi
      			//		'''
-					gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
+					sh '''
+						gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
+      					'''
 					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
 					sh "docker push ${FULL_IMAGE_NAME}"
 					echo "Image pushed to: ${FULL_IMAGE_NAME}"
