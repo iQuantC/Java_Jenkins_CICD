@@ -112,15 +112,9 @@ pipeline {
                 		'''
 		    		script {
 					gcloud services enable artifactregistry.googleapis.com
-					gcloud projects add-iam-policy-binding focal-dock-440200-u5 \
-  						--member="serviceAccount:jmsa-830@focal-dock-440200-u5.iam.gserviceaccount.com" \
-  						--role="roles/artifactregistry.writer"
+					gcloud projects add-iam-policy-binding focal-dock-440200-u5 --member="serviceAccount:jmsa-830@focal-dock-440200-u5.iam.gserviceaccount.com" --role="roles/artifactregistry.writer"
 
-					gcloud artifacts repositories create java-app-repo \
-  						--repository-format=docker \
-  						--location=us \
-  						--description="Docker repository" \
-  						--project=focal-dock-440200-u5
+					gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
 
 					def FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo/${IMAGE_NAME}:${IMAGE_TAG}"
 
