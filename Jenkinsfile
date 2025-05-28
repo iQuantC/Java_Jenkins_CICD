@@ -147,6 +147,7 @@ pipeline {
             					--region=$REGION \
             					--platform=managed \
             					--allow-unauthenticated \
+		 				--port=8090 \
             					--memory=512Mi \
             					--quiet
                 		'''
