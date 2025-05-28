@@ -12,6 +12,9 @@ pipeline {
         FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo-02/${IMAGE_NAME}:${IMAGE_TAG}"
 	SERVICE_NAME = "java-app-service"
 	REGION = "us-central1"
+	ACR_NAME = "javaapprepo00"
+	ACR_LOGIN_SERVER = "${ACR_NAME}.azurecr.io"
+	RESOURCE_GROUP = "iquant-00"
     }
     stages {
         stage('Initialize Pipeline'){
@@ -171,6 +174,22 @@ pipeline {
             				az account set --subscription $(jq -r .subscriptionId $AZURE_CRED)
           			'''
         			}
+      			}
+    		}
+	    stage('Push to Azure Container Registry') {
+      		steps {
+			withCredentials([file(credentialsId: 'azServicePrincipal', variable: 'AZURE_CRED')]) {
+        			sh '''
+          				echo "Logging into ACR..."
+          				az acr login --name $ACR_NAME
+
+          				echo "Tagging Docker image..."
+          				docker tag $IMAGE_NAME:$IMAGE_TAG $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG
+
+          				echo "Pushing Docker image to ACR..."
+          				docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG
+        			'''
+				}
       			}
     		}
 	}
