@@ -9,7 +9,7 @@ pipeline {
 	PROJECT_ID = "focal-dock-440200-u5"
         IMAGE_NAME = "java-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo-01/${IMAGE_NAME}:${IMAGE_TAG}"
+        FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo-02/${IMAGE_NAME}:${IMAGE_TAG}"
 	SERVICE_NAME = "java-app-service"
 	REGION = "us-central1"
     }
@@ -126,7 +126,7 @@ pipeline {
   			//		fi
      			//		'''
 					sh '''
-						gcloud artifacts repositories create java-app-repo-01 --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
+						gcloud artifacts repositories create java-app-repo-02 --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5
       					'''
 					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
 					sh "docker push ${FULL_IMAGE_NAME}"
