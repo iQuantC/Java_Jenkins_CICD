@@ -10,6 +10,8 @@ pipeline {
         IMAGE_NAME = "java-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         FULL_IMAGE_NAME = "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
+	SERVICE_NAME = "java-app-service"
+	REGION = "us-central1"
     }
     stages {
         stage('Initialize Pipeline'){
@@ -111,15 +113,52 @@ pipeline {
                     			gcloud auth configure-docker us-docker.pkg.dev --quiet
                 		'''
 		    		script {
+			//		sh '''
+			//		if ! gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5 >/dev/null 2>&1; then 
+			//			echo "Creating Artifact Registry repository..."
+    			//			gcloud artifacts repositories create java-app-repo \
+      			//				--repository-format=docker \
+      			//				--location=us \
+      			//				--description="Docker repository" \
+      			//				--project=focal-dock-440200-u5
+  			//		else
+    			//			echo "Artifact Registry repository already exists. Skipping..."
+  			//		fi
+     			//		'''
 					def FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo/${IMAGE_NAME}:${IMAGE_TAG}"
-					//gcloud services enable artifactregistry.googleapis.com
-					//gcloud projects add-iam-policy-binding focal-dock-440200-u5 --member="serviceAccount:jmsanew@focal-dock-440200-u5.iam.gserviceaccount.com" --role="roles/artifactregistry.writer"
-					//def imageNameGCR = "gcr.io/focal-dock-440200-u5/java-app:${BUILD_NUMBER}"
 					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
 					sh "docker push ${FULL_IMAGE_NAME}"
 						}
 					}
 				}
+            		}
+        	}
+	    stage('Deploy to Cloud Run') {
+		    steps {
+			withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
+			   withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+		    		sh '''
+                    			echo "Deploying to Cloud Run..."
+          				gcloud run deploy $SERVICE_NAME \
+            					--image=$FULL_IMAGE_NAME \
+            					--region=$REGION \
+            					--platform=managed \
+            					--allow-unauthenticated \
+            					--memory=512Mi \
+            					--quiet
+                		'''
+			   	}
+			   }
+		    }
+	      }
+	    stage('Get Cloud Run Service URL') {
+            	steps {
+                	sh '''
+                    		gcloud run services describe $SERVICE_NAME \
+                        		--platform managed \
+                        		--region $REGION \
+                        		--format="value(status.url)"
+                	'''
             		}
         	}
 	}
