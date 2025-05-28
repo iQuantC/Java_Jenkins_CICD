@@ -111,19 +111,6 @@ pipeline {
                     			gcloud auth configure-docker us-docker.pkg.dev --quiet
                 		'''
 		    		script {
-					sh '''
-					
-					if ! gcloud artifacts repositories create java-app-repo --repository-format=docker --location=us --description="Docker repository" --project=focal-dock-440200-u5 >/dev/null 2>&1; then 
-						echo "Creating Artifact Registry repository..."
-    						gcloud artifacts repositories create java-app-repo \
-      							--repository-format=docker \
-      							--location=us \
-      							--description="Docker repository" \
-      							--project=focal-dock-440200-u5
-  					else
-    						echo "Artifact Registry repository already exists. Skipping..."
-  					fi
-     					'''
 					def FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo/${IMAGE_NAME}:${IMAGE_TAG}"
 					//gcloud services enable artifactregistry.googleapis.com
 					//gcloud projects add-iam-policy-binding focal-dock-440200-u5 --member="serviceAccount:jmsanew@focal-dock-440200-u5.iam.gserviceaccount.com" --role="roles/artifactregistry.writer"
