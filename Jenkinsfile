@@ -6,6 +6,10 @@ pipeline {
     }
     environment {
         SONAR_SCANNER_HOME = tool 'sonar7'
+	PROJECT_ID = "focal-dock-440200-u5"
+        IMAGE_NAME = "java-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        FULL_IMAGE_NAME = "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
     }
     stages {
         stage('Initialize Pipeline'){
@@ -59,14 +63,15 @@ pipeline {
             steps {
                 echo 'Building the Java App Docker Image'
                 script {
-			docker.build("java-app:${BUILD_NUMBER}")
+			sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+			//docker.build("java-app:${BUILD_NUMBER}")
 		}
             }
         }
         stage('Trivy Security Scan'){
             steps {
                 echo 'Scanning Docker Image with Trivy'
-		sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivyFSScanReport.html image java-app:${BUILD_NUMBER}'
+		sh "trivy --severity HIGH,CRITICAL --no-progress --format table -o trivyFSScanReport.html image ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
 	stage('Login to DockerHub'){
@@ -83,17 +88,17 @@ pipeline {
         	}
             }
         }
-        stage('Tag & Push Docker Image'){
-            steps {
-                echo 'Pushing the Java App Docker Image to DockerHub'
-		script {
-			def imageName = "iquantc/java-app:${BUILD_NUMBER}"
-			sh "docker tag java-app:${BUILD_NUMBER} ${imageName}"
-			sh "docker push ${imageName}"
-			sh "docker logout"
-            		}
-        	  }
-    	      }
+        //stage('Tag & Push Docker Image'){
+        //    steps {
+        //        echo 'Pushing the Java App Docker Image to DockerHub'
+	//	script {
+	//		def imageName = "iquantc/java-app:${BUILD_NUMBER}"
+	//		sh "docker tag java-app:${BUILD_NUMBER} ${imageName}"
+	//		sh "docker push ${imageName}"
+	//		sh "docker logout"
+        //   		}
+        //	  }
+    	//      }
 	stage('Authenticate with GCP & Push to GCR') {
             steps {
 		withCredentials([file(credentialsId: 'gcp-jmsa', variable: 'gcpCred')]) {
@@ -104,15 +109,36 @@ pipeline {
                     			gcloud config set project focal-dock-440200-u5
                     			echo Configuring Docker to use gcloud credentials...
                     			gcloud auth configure-docker --quiet
-                		   '''
+                		'''
 		    		script {
-					def imageNameGCR = "gcr.io/focal-dock-440200-u5/java-app:${BUILD_NUMBER}"
-					sh "docker tag java-app:${BUILD_NUMBER} ${imageNameGCR}"
-					sh "docker push ${imageNameGCR}"
+					gcloud services enable artifactregistry.googleapis.com
+					gcloud projects add-iam-policy-binding focal-dock-440200-u5 \
+  						--member="serviceAccount:jmsa-830@focal-dock-440200-u5.iam.gserviceaccount.com" \
+  						--role="roles/artifactregistry.writer"
+
+					gcloud artifacts repositories create java-app-repo \
+  						--repository-format=docker \
+  						--location=us \
+  						--description="Docker repository" \
+  						--project=focal-dock-440200-u5
+
+					def FULL_IMAGE_NAME = "us-docker.pkg.dev/${PROJECT_ID}/java-app-repo/${IMAGE_NAME}:${IMAGE_TAG}"
+
+					//def imageNameGCR = "gcr.io/focal-dock-440200-u5/java-app:${BUILD_NUMBER}"
+					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
+					sh "docker push ${FULL_IMAGE_NAME}"
 						}
 					}
 				}
             		}
         	}
 	}
+	post {
+        	success {
+            		echo "Pipeline completed successfully! Image pushed to ${FULL_IMAGE_NAME}"
+        	}
+        	failure {
+            		echo "Pipeline failed. Please check the logs for more details."
+        	}
+    	}
 }
