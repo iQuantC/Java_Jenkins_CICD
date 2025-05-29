@@ -224,7 +224,7 @@ pipeline {
             					--query ipAddress.fqdn \
             					--output tsv):8090
 
-          				echo "Application URL: http://$APP_URL:8090"
+          				echo "Application URL: http://$APP_URL"
         			'''
 				}
       			}
