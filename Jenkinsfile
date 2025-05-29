@@ -210,6 +210,8 @@ pipeline {
             					--ports 8090 \
             					--location $ACI_REGION \
 		 				--os-type Linux \
+       						--cpu 1 \
+  						--memory 1.5 \
 		 				--restart-policy Never
 
        					echo "Waiting for ACI to initialize..."
