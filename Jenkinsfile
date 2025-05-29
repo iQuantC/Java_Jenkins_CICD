@@ -21,7 +21,7 @@ pipeline {
     stages {
         stage('Initialize Pipeline'){
             steps {
-                echo 'Initializing Pipeline'
+                echo 'Initializing Pipeline ...'
                 sh 'java -version'
                 sh 'mvn -version'
             }
