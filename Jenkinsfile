@@ -198,7 +198,7 @@ pipeline {
       		steps {
 			withCredentials([file(credentialsId: 'azServicePrincipal', variable: 'AZURE_CRED')]) {
         			sh '''
-          				echo "Deploying to Azure Container Instance..."
+          				echo "Deploying to Azure Container Instance...."
           				az container create \
             					--name $ACI_NAME \
             					--resource-group $RESOURCE_GROUP \
