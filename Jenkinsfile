@@ -209,6 +209,7 @@ pipeline {
             					--dns-name-label java-app-${BUILD_NUMBER} \
             					--ports 8090 \
             					--location $ACI_REGION \
+		 				--os-type Linux \
 		 				--restart-policy Never
 
        					echo "Waiting for ACI to initialize..."
