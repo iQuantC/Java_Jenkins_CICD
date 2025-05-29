@@ -222,9 +222,9 @@ pipeline {
             					--resource-group $RESOURCE_GROUP \
             					--name $ACI_NAME \
             					--query ipAddress.fqdn \
-            					--output tsv)
+            					--output tsv):8090
 
-          				echo "Application URL: http://$APP_URL"
+          				echo "Application URL: http://$APP_URL:8090"
         			'''
 				}
       			}
